@@ -1,7 +1,8 @@
 import requests
 from dotenv import load_dotenv
 import os
-from urllib.parse import  urlparse
+from urllib.parse import urlparse
+
 
 load_dotenv()
 SERVICE_VK_KEY = os.getenv('SERVICE_KEY')
@@ -16,17 +17,17 @@ def shorten_link(token, link):
         'access_token': token,
         'v': '5.191',
     }
-    url_short_link = 'https://api.vk.ru/method/utils.getShortLink'
+    url_short_link = 'https://api.vk.com/method/utils.getShortLink'
 
     try:
         response = requests.get(url_short_link, params=params)
         response.raise_for_status()
 
-        data = response.json()
-        if 'error' in data:
-            error_msg = data['error'].get('error_msg', 'неизвестная ошибка')
+        json_params = response.json()
+        if 'error' in json_params:
+            error_msg = ['error'].get('error_msg', 'неизвестная ошибка')
             return f'Ошибка: {error_msg}'
-        short_link = data['response']['short_url']
+        short_link = json_params['response']['short_url']
         return short_link
     except requests.exceptions.RequestException as e:
         return f'Произошла ошибка {e}'
@@ -36,12 +37,9 @@ def count_clicks(token, link):
     if not is_shorten_link(link):
         link = shorten_link(token, link)
 
-
-    # short_link = shorten_link(token, link)
     parsed_url = urlparse(link)
     key = parsed_url.path.strip('/')
-    print(parsed_url)
-    print(key, token, sep='\n')
+
     params = {
         'access_token': token,
         'key': key,
@@ -51,16 +49,21 @@ def count_clicks(token, link):
     }
     url_status = 'https://api.vk.com/method/utils.getLinkStats'
 
-
     try:
         response = requests.get(url_status, params=params)
         response.raise_for_status()
-        data = response.json()
+        json_params = response.json()
 
-        if 'error' in data:
-            error_msg = data['error'].get('error_msg', 'неизвестная ошибка')
+        if 'error' in json_params:
+            error_msg = (
+                json_params['error']
+                .get('error_msg', 'неизвестная ошибка')
+            )
             return f'Ошибка: {error_msg}'
-        clicks = sum(interval['views'] for interval in data['response']['stats'])
+        clicks = sum(
+            interval['views']
+            for interval in json_params['response']['stats']
+        )
         return f'Количество кликов по ссылке: {clicks}'
     except requests.exceptions.RequestException as e:
         return f'Произошла ошибка: {e}'
@@ -73,11 +76,11 @@ def is_shorten_link(url):
 
 def main():
     long_link = input('Введите свою ссылку: ')
-    # if is_shorten_link(long_link):
-    #     print(count_clicks(SERVICE_VK_KEY, long_link))
-    # else:
-    #     print(shorten_link(SERVICE_VK_KEY, long_link))
-    print(count_clicks(SERVICE_VK_KEY, long_link))
+    if is_shorten_link(long_link):
+        print(count_clicks(SERVICE_VK_KEY, long_link))
+    else:
+        print(shorten_link(SERVICE_VK_KEY, long_link))
+
 
 if __name__ == '__main__':
     main()
