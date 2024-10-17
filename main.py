@@ -72,7 +72,13 @@ def is_shorten_link(url):
 
 def main():
     global service_vk_key
-    service_vk_key = os.getenv('SERVICE_KEY_VK')
+
+    try:
+        service_vk_key = os.environ['SERVICE_KEY_VK']
+    except KeyError:
+        print('Ошибка: переменная окружения SERVICE_KEY_VK не установлена')
+        return
+
     long_link = input('Введите свою ссылку: ')
     if is_shorten_link(long_link):
         print(count_clicks(service_vk_key, long_link))
