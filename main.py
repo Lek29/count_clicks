@@ -72,7 +72,7 @@ def is_shorten_link(url):
 
 def main():
     global service_vk_key
-    service_vk_key = os.getenv('SERVICE_KEY')
+    service_vk_key = os.getenv('SERVICE_KEY_VK')
     long_link = input('Введите свою ссылку: ')
     if is_shorten_link(long_link):
         print(count_clicks(service_vk_key, long_link))
