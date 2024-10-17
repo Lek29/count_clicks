@@ -4,10 +4,6 @@ import os
 from urllib.parse import urlparse
 
 
-load_dotenv()
-SERVICE_VK_KEY = os.getenv('SERVICE_KEY')
-
-
 def shorten_link(token, link):
     if is_shorten_link(link):
         return link
@@ -75,12 +71,15 @@ def is_shorten_link(url):
 
 
 def main():
+    global service_vk_key
+    service_vk_key = os.getenv('SERVICE_KEY')
     long_link = input('Введите свою ссылку: ')
     if is_shorten_link(long_link):
-        print(count_clicks(SERVICE_VK_KEY, long_link))
+        print(count_clicks(service_vk_key, long_link))
     else:
-        print(shorten_link(SERVICE_VK_KEY, long_link))
+        print(shorten_link(service_vk_key, long_link))
 
 
 if __name__ == '__main__':
+    load_dotenv()
     main()
