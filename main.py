@@ -15,11 +15,11 @@ def shorten_link(token, link):
     response = requests.get(url_short_link, params=params)
     response.raise_for_status()
 
-    json_params = response.json()
-    if 'error' in json_params:
+    response_json = response.json()
+    if 'error' in response_json:
         error_msg = ['error'].get('error_msg', 'неизвестная ошибка')
         return f'Ошибка: {error_msg}'
-    short_link = json_params['response']['short_url']
+    short_link = response_json['response']['short_url']
     return short_link
 
 
@@ -39,17 +39,17 @@ def count_clicks(token, link):
 
     response = requests.get(url_status, params=params)
     response.raise_for_status()
-    json_params = response.json()
+    response_json = response.json()
 
-    if 'error' in json_params:
+    if 'error' in response_json:
         error_msg = (
-            json_params['error']
+            response_json['error']
             .get('error_msg', 'неизвестная ошибка')
         )
         return f'Ошибка: {error_msg}'
     clicks = sum(
         interval['views']
-        for interval in json_params['response']['stats']
+        for interval in response_json['response']['stats']
     )
     return f'Количество кликов по ссылке: {clicks}'
 
