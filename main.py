@@ -5,9 +5,6 @@ from urllib.parse import urlparse
 
 
 def shorten_link(token, link):
-    # if is_shorten_link(link):
-    #     return link
-
     params = {
         'url': link,
         'access_token': token,
@@ -27,9 +24,6 @@ def shorten_link(token, link):
 
 
 def count_clicks(token, link):
-    # if not is_shorten_link(link):
-    #     link = shorten_link(token, link)
-
     parsed_url = urlparse(link)
     key = parsed_url.path.strip('/')
 
