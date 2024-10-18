@@ -10,17 +10,17 @@ def shorten_link(token, link):
         'access_token': token,
         'v': '5.191',
     }
-    url_short_link = 'https://api.vk.com/method/utils.getShortLink'
+    short_link_api_url = 'https://api.vk.com/method/utils.getShortLink'
 
-    response = requests.get(url_short_link, params=params)
+    response = requests.get(short_link_api_url, params=params)
     response.raise_for_status()
 
     response_json = response.json()
     if 'error' in response_json:
         error_msg = ['error'].get('error_msg', 'неизвестная ошибка')
-        return f'Ошибка: {error_msg}'
+        return None, error_msg
     short_link = response_json['response']['short_url']
-    return short_link
+    return short_link, None
 
 
 def count_clicks(token, link):
@@ -34,10 +34,10 @@ def count_clicks(token, link):
         'intervals_count': 100,
         'extended': 0,
     }
-    url_status = 'https://api.vk.com/method/utils.getLinkStats'
+    link_status_api_url = 'https://api.vk.com/method/utils.getLinkStats'
 
 
-    response = requests.get(url_status, params=params)
+    response = requests.get(link_status_api_url, params=params)
     response.raise_for_status()
     response_json = response.json()
 
@@ -46,12 +46,25 @@ def count_clicks(token, link):
             response_json['error']
             .get('error_msg', 'неизвестная ошибка')
         )
-        return f'Ошибка: {error_msg}'
+        return None, error_msg
     clicks = sum(
         interval['views']
         for interval in response_json['response']['stats']
     )
-    return f'Количество кликов по ссылке: {clicks}'
+    return clicks, None
+
+def print_clicks(clicks, error_msg):
+    if error_msg:
+        print(f'Ошибка {error_msg}')
+    else:
+        print(f'Количество кликов {clicks}')
+
+
+def print_short_links(short_links, error_msg):
+    if error_msg:
+        print(f'Ошибка {error_msg}')
+    else:
+        print(f'Сокращенная ссылка {short_links}')
 
 
 def is_shorten_link(url):
@@ -71,9 +84,11 @@ def main():
     try:
         long_link = input('Введите свою ссылку: ')
         if is_shorten_link(long_link):
-            print(count_clicks(SERVICE_VK_KEY, long_link))
+            clicks, error_msg = count_clicks(SERVICE_VK_KEY, long_link)
+            print_clicks(clicks, error_msg)
         else:
-            print(shorten_link(SERVICE_VK_KEY, long_link))
+            short_link, error_msg = shorten_link(SERVICE_VK_KEY, long_link)
+            print_short_links(short_link, error_msg)
     except requests.exceptions.RequestException as e:
         print(f'Произошла ошибка при выполнении запроса: {e}')
     except Exception as e:
