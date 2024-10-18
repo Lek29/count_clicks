@@ -15,18 +15,15 @@ def shorten_link(token, link):
     }
     url_short_link = 'https://api.vk.com/method/utils.getShortLink'
 
-    try:
-        response = requests.get(url_short_link, params=params)
-        response.raise_for_status()
+    response = requests.get(url_short_link, params=params)
+    response.raise_for_status()
 
-        json_params = response.json()
-        if 'error' in json_params:
-            error_msg = ['error'].get('error_msg', 'неизвестная ошибка')
-            return f'Ошибка: {error_msg}'
-        short_link = json_params['response']['short_url']
-        return short_link
-    except requests.exceptions.RequestException as e:
-        return f'Произошла ошибка {e}'
+    json_params = response.json()
+    if 'error' in json_params:
+        error_msg = ['error'].get('error_msg', 'неизвестная ошибка')
+        return f'Ошибка: {error_msg}'
+    short_link = json_params['response']['short_url']
+    return short_link
 
 
 def count_clicks(token, link):
@@ -45,24 +42,22 @@ def count_clicks(token, link):
     }
     url_status = 'https://api.vk.com/method/utils.getLinkStats'
 
-    try:
-        response = requests.get(url_status, params=params)
-        response.raise_for_status()
-        json_params = response.json()
 
-        if 'error' in json_params:
-            error_msg = (
-                json_params['error']
-                .get('error_msg', 'неизвестная ошибка')
-            )
-            return f'Ошибка: {error_msg}'
-        clicks = sum(
-            interval['views']
-            for interval in json_params['response']['stats']
+    response = requests.get(url_status, params=params)
+    response.raise_for_status()
+    json_params = response.json()
+
+    if 'error' in json_params:
+        error_msg = (
+            json_params['error']
+            .get('error_msg', 'неизвестная ошибка')
         )
-        return f'Количество кликов по ссылке: {clicks}'
-    except requests.exceptions.RequestException as e:
-        return f'Произошла ошибка: {e}'
+        return f'Ошибка: {error_msg}'
+    clicks = sum(
+        interval['views']
+        for interval in json_params['response']['stats']
+    )
+    return f'Количество кликов по ссылке: {clicks}'
 
 
 def is_shorten_link(url):
@@ -71,19 +66,23 @@ def is_shorten_link(url):
 
 
 def main():
-    global service_vk_key
+    global SERVICE_VK_KEY
 
     try:
-        service_vk_key = os.environ['SERVICE_KEY_VK']
+        SERVICE_VK_KEY = os.environ['SERVICE_KEY_VK']
     except KeyError:
         print('Ошибка: переменная окружения SERVICE_KEY_VK не установлена')
         return
-
-    long_link = input('Введите свою ссылку: ')
-    if is_shorten_link(long_link):
-        print(count_clicks(service_vk_key, long_link))
-    else:
-        print(shorten_link(service_vk_key, long_link))
+    try:
+        long_link = input('Введите свою ссылку: ')
+        if is_shorten_link(long_link):
+            print(count_clicks(SERVICE_VK_KEY, long_link))
+        else:
+            print(shorten_link(SERVICE_VK_KEY, long_link))
+    except requests.exceptions.RequestException as e:
+        print(f'Произошла ошибка при выполнении запроса: {e}')
+    except Exception as e:
+        print(f'Произошла ошибка: {e}')
 
 
 if __name__ == '__main__':
