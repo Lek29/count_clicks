@@ -5,8 +5,8 @@ from urllib.parse import urlparse
 
 
 def shorten_link(token, link):
-    if is_shorten_link(link):
-        return link
+    # if is_shorten_link(link):
+    #     return link
 
     params = {
         'url': link,
@@ -27,8 +27,8 @@ def shorten_link(token, link):
 
 
 def count_clicks(token, link):
-    if not is_shorten_link(link):
-        link = shorten_link(token, link)
+    # if not is_shorten_link(link):
+    #     link = shorten_link(token, link)
 
     parsed_url = urlparse(link)
     key = parsed_url.path.strip('/')
@@ -73,6 +73,7 @@ def main():
     except KeyError:
         print('Ошибка: переменная окружения SERVICE_KEY_VK не установлена')
         return
+
     try:
         long_link = input('Введите свою ссылку: ')
         if is_shorten_link(long_link):
