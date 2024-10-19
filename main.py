@@ -1,3 +1,5 @@
+from dbm import error
+
 import requests
 from dotenv import load_dotenv
 import os
@@ -36,7 +38,6 @@ def count_clicks(token, link):
     }
     link_status_api_url = 'https://api.vk.com/method/utils.getLinkStats'
 
-
     response = requests.get(link_status_api_url, params=params)
     response.raise_for_status()
     response_json = response.json()
@@ -53,23 +54,22 @@ def count_clicks(token, link):
     )
     return clicks, None
 
-def print_clicks(clicks, error_msg):
-    if error_msg:
-        print(f'Ошибка {error_msg}')
-    else:
-        print(f'Количество кликов {clicks}')
-
-
-def print_short_links(short_links, error_msg):
-    if error_msg:
-        print(f'Ошибка {error_msg}')
-    else:
-        print(f'Сокращенная ссылка {short_links}')
-
 
 def is_shorten_link(url):
     parced_url = urlparse(url)
     return parced_url.netloc == 'vk.cc'
+
+
+def handle_link(token, link):
+    try:
+        if is_shorten_link(link):
+            return count_clicks(token, link)
+        else:
+            return shorten_link(token, link)
+    except requests.exceptions.RequestException as error:
+        return None, error
+    except Exception as error:
+        return None, error
 
 
 def main():
@@ -81,18 +81,17 @@ def main():
         print('Ошибка: переменная окружения SERVICE_KEY_VK не установлена')
         return
 
-    try:
-        long_link = input('Введите свою ссылку: ')
+    long_link = input('Введите свою ссылку: ')
+
+    result_of_reduction, error_msg = handle_link(SERVICE_VK_KEY, long_link)
+
+    if error_msg:
+        print(f'Ошибка: {error_msg}')
+    else:
         if is_shorten_link(long_link):
-            clicks, error_msg = count_clicks(SERVICE_VK_KEY, long_link)
-            print_clicks(clicks, error_msg)
+            print(f'Количество кликов: {result_of_reduction}')
         else:
-            short_link, error_msg = shorten_link(SERVICE_VK_KEY, long_link)
-            print_short_links(short_link, error_msg)
-    except requests.exceptions.RequestException as e:
-        print(f'Произошла ошибка при выполнении запроса: {e}')
-    except Exception as e:
-        print(f'Произошла ошибка: {e}')
+            print(f'Сокращенная ссылка: {result_of_reduction}')
 
 
 if __name__ == '__main__':
