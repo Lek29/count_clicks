@@ -73,8 +73,6 @@ def handle_link(token, link):
 
 
 def main():
-    global SERVICE_VK_KEY
-
     try:
         SERVICE_VK_KEY = os.environ['SERVICE_KEY_VK']
     except KeyError:
