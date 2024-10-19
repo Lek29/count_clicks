@@ -74,14 +74,14 @@ def handle_link(token, link):
 
 def main():
     try:
-        SERVICE_VK_KEY = os.environ['SERVICE_KEY_VK']
+        service_vk_key = os.environ['VK_SERVICE_KEY']
     except KeyError:
-        print('Ошибка: переменная окружения SERVICE_KEY_VK не установлена')
+        print('Ошибка: переменная окружения VK_SERVICE_KEY не установлена')
         return
 
     long_link = input('Введите свою ссылку: ')
 
-    result_of_reduction, error_msg = handle_link(SERVICE_VK_KEY, long_link)
+    result_of_reduction, error_msg = handle_link(service_vk_key, long_link)
 
     if error_msg:
         print(f'Ошибка: {error_msg}')
