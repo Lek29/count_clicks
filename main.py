@@ -1,4 +1,5 @@
 from dbm import error
+from itertools import count
 
 import requests
 from dotenv import load_dotenv
@@ -17,11 +18,11 @@ def shorten_link(token, link):
     response = requests.get(short_link_api_url, params=params)
     response.raise_for_status()
 
-    response_json = response.json()
-    if 'error' in response_json:
+    response_dict = response.json()
+    if 'error' in response_dict:
         error_msg = ['error'].get('error_msg', 'неизвестная ошибка')
         return None, error_msg
-    short_link = response_json['response']['short_url']
+    short_link = response_dict['response']['short_url']
     return short_link, None
 
 
@@ -40,17 +41,17 @@ def count_clicks(token, link):
 
     response = requests.get(link_status_api_url, params=params)
     response.raise_for_status()
-    response_json = response.json()
+    response_dict = response.json()
 
-    if 'error' in response_json:
+    if 'error' in response_dict:
         error_msg = (
-            response_json['error']
+            response_dict['error']
             .get('error_msg', 'неизвестная ошибка')
         )
         return None, error_msg
     clicks = sum(
         interval['views']
-        for interval in response_json['response']['stats']
+        for interval in response_dict['response']['stats']
     )
     return clicks, None
 
@@ -60,38 +61,31 @@ def is_shorten_link(url):
     return parced_url.netloc == 'vk.cc'
 
 
-def handle_link(token, link):
-    try:
-        if is_shorten_link(link):
-            return count_clicks(token, link)
-        else:
-            return shorten_link(token, link)
-    except requests.exceptions.RequestException as error:
-        return None, error
-    except Exception as error:
-        return None, error
-
-
 def main():
-    try:
-        service_vk_key = os.environ['SERVICE_VK_KEY']
-    except KeyError:
-        print('Ошибка: переменная окружения SERVICE_VK_KEY не установлена')
-        return
+    load_dotenv()
+    service_vk_key = os.environ['SERVICE_VK_KEY']
 
     long_link = input('Введите свою ссылку: ')
 
-    result_of_reduction, error_msg = handle_link(service_vk_key, long_link)
-
-    if error_msg:
-        print(f'Ошибка: {error_msg}')
-    else:
+    try:
         if is_shorten_link(long_link):
-            print(f'Количество кликов: {result_of_reduction}')
+            action_function = count_clicks
+            result_message = 'Количество кликов: {}'
         else:
-            print(f'Сокращенная ссылка: {result_of_reduction}')
+            action_function = shorten_link
+            result_message = 'Короткая ссылка: {}'
+
+        reduction_result, error_msg = action_function(service_vk_key, long_link)
+
+        if error_msg:
+            print(f'Ошибка: {error_msg}')
+        else:
+            print(result_message.format(reduction_result))
+    except requests.exceptions.RequestException as error:
+        print(f"Ошибка сети: {error}")
+    except Exception as error:
+        print(f'Неизвестная ошибка: {error}')
 
 
 if __name__ == '__main__':
-    load_dotenv()
     main()
