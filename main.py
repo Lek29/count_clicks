@@ -18,11 +18,11 @@ def shorten_link(token, link):
     response = requests.get(short_link_api_url, params=params)
     response.raise_for_status()
 
-    response_dict = response.json()
-    if 'error' in response_dict:
+    api_response = response.json()
+    if 'error' in api_response:
         error_msg = ['error'].get('error_msg', 'неизвестная ошибка')
         return None, error_msg
-    short_link = response_dict['response']['short_url']
+    short_link = api_response['response']['short_url']
     return short_link, None
 
 
@@ -41,17 +41,17 @@ def count_clicks(token, link):
 
     response = requests.get(link_status_api_url, params=params)
     response.raise_for_status()
-    response_dict = response.json()
+    api_response = response.json()
 
-    if 'error' in response_dict:
+    if 'error' in api_response:
         error_msg = (
-            response_dict['error']
+            api_response['error']
             .get('error_msg', 'неизвестная ошибка')
         )
         return None, error_msg
     clicks = sum(
         interval['views']
-        for interval in response_dict['response']['stats']
+        for interval in api_response['response']['stats']
     )
     return clicks, None
 
