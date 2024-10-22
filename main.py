@@ -63,19 +63,17 @@ def is_shorten_link(url):
 
 def main():
     load_dotenv()
-    service_vk_key = os.environ['SERVICE_VK_KEY']
+    vk_service_key = os.environ['VK_SERVICE_KEY']
 
     long_link = input('Введите свою ссылку: ')
 
     try:
         if is_shorten_link(long_link):
-            action_function = count_clicks
-            result_message = 'Количество кликов: {}'
+            reduction_result, error_msg = count_clicks(vk_service_key, long_link)
+            result_message = 'Количество кликов {}'
         else:
-            action_function = shorten_link
+            reduction_result, error_msg = shorten_link(vk_service_key, long_link)
             result_message = 'Короткая ссылка: {}'
-
-        reduction_result, error_msg = action_function(service_vk_key, long_link)
 
         if error_msg:
             print(f'Ошибка: {error_msg}')
