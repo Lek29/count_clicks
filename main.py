@@ -1,6 +1,6 @@
 from dbm import error
 from itertools import count
-
+import argparse
 import requests
 from dotenv import load_dotenv
 import os
@@ -64,15 +64,26 @@ def is_shorten_link(url):
 def main():
     load_dotenv()
     vk_service_key = os.environ['VK_SERVICE_KEY']
+    parser = argparse.ArgumentParser(
+        description='Введите свою ссылку: '
+    )
+    parser.add_argument(
+        '-l', '--link',
+        required=True,
+        help='Введите свою ссылку'
+    )
+    args = parser.parse_args()
+    link = args.link
 
-    long_link = input('Введите свою ссылку: ')
+
+    #long_link = input('Введите свою ссылку: ')
 
     try:
-        if is_shorten_link(long_link):
-            reduction_result, error_msg = count_clicks(vk_service_key, long_link)
-            result_message = 'Количество кликов {}'
+        if is_shorten_link(link):
+            reduction_result, error_msg = count_clicks(vk_service_key, link)
+            result_message = 'Количество кликов: {}'
         else:
-            reduction_result, error_msg = shorten_link(vk_service_key, long_link)
+            reduction_result, error_msg = shorten_link(vk_service_key, link)
             result_message = 'Короткая ссылка: {}'
 
         if error_msg:
