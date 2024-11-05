@@ -1,4 +1,3 @@
-
 import argparse
 import requests
 from dotenv import load_dotenv
@@ -73,9 +72,6 @@ def main():
     )
     args = parser.parse_args()
     link = args.link
-
-
-    #long_link = input('Введите свою ссылку: ')
 
     try:
         if is_shorten_link(link):
