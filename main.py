@@ -1,5 +1,4 @@
-from dbm import error
-from itertools import count
+
 import argparse
 import requests
 from dotenv import load_dotenv
