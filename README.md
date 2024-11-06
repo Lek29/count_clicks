@@ -25,11 +25,10 @@ VK_SERVICE_KEY=your API
 ## Примеры корректного запуска и выполнения программы.
 Запустите скрипт, чтобы создать короткую ссылку или посчитать количество кликов:
 ```
-python main.py
+python main.py -l https://dvmn.org/
+
 ```
-Input:
-```
-Введите свою ссылку: https://dvmn.org/
+
 ```
 Output:
 ```
@@ -37,7 +36,7 @@ Output:
 ```
 Input:
 ```
-Введите свою ссылку: https://vk.cc/cx0cHv
+python main.py -l https://vk.cc/cx0cHv
 ```
 Output:
 ```
