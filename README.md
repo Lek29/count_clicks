@@ -29,11 +29,11 @@ python main.py -l https://dvmn.org/
 
 ```
 
-```
 Output:
 ```
 Короткая ссылка: https://vk.cc/cx0cHv
 ```
+
 Input:
 ```
 python main.py -l https://vk.cc/cx0cHv
