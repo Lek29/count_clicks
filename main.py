@@ -1,3 +1,4 @@
+import argparse
 import requests
 from dotenv import load_dotenv
 import os
@@ -48,14 +49,17 @@ def main():
     load_dotenv()
     vk_service_key = os.environ['VK_SERVICE_KEY']
 
-    long_link = input('Введите свою ссылку: ')
+    parser = argparse.ArgumentParser(description='Создание коротких ссылок и подсчет кликов через VK API')
+    parser.add_argument('-l', '--link', required=True, help='Введите свою ссылку')
+    args = parser.parse_args()
+    link = args.link
 
     try:
-        if is_shorten_link(long_link):
-            reduction_result = count_clicks(vk_service_key, long_link)
+        if is_shorten_link(link):
+            reduction_result = count_clicks(vk_service_key, link)
             result_message = 'Количество кликов: {}'
         else:
-            reduction_result = shorten_link(vk_service_key, long_link)
+            reduction_result = shorten_link(vk_service_key, link)
             result_message = 'Короткая ссылка: {}'
 
         print(result_message.format(reduction_result))
